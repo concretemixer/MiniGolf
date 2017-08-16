@@ -5,7 +5,7 @@ using UnityEngine;
 public class Floor : MonoBehaviour {
 
     public float normalBounceK = 0;
-    public bool isHorisontal = true;
+      
 	// Use this for initialization
 	void Start () {
 		
@@ -16,7 +16,7 @@ public class Floor : MonoBehaviour {
 		
 	}
 
-    public Vector3 GetNormal(Vector3 atPoint)
+    public virtual Vector3 GetNormal(Vector3 atPoint)
     {
         return Vector3.up;
     }

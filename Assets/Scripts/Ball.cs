@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Ball : MonoBehaviour {
 
@@ -18,7 +19,7 @@ public class Ball : MonoBehaviour {
     float timeInState = 0;
 
     bool aiming = false;
-    bool ballistic = true;
+    bool ballistic = false;
 
     private BallState State
     {
@@ -38,9 +39,21 @@ public class Ball : MonoBehaviour {
     void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+
+    void UpdateHUD()
+    {
+        GameObject _state = GameObject.Find("BallStateText");
+        if (_state != null)
+        {
+            _state.GetComponent<Text>().text = State.ToString();
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
+        UpdateHUD();
+
         timeInState += Time.deltaTime;
         if (State == BallState.Still)
         {
@@ -122,13 +135,14 @@ public class Ball : MonoBehaviour {
     void FixedUpdate()
     {
         if (State == BallState.Air)
-        {   
+        {
             GetComponent<Rigidbody>().drag = 0;
             GetComponent<Rigidbody>().AddForce(-Vector3.up * 0.5f, ForceMode.Force);
         }
         if (State == BallState.Ground)
         {
-            if (/*timeInState > 1.0f &&*/ GetComponent<Rigidbody>().velocity.magnitude < 0.01f)
+            GetComponent<Rigidbody>().drag = 0.5f;
+            if (/*timeInState > 1.0f &&*/ GetComponent<Rigidbody>().velocity.magnitude < 0.05f)
             {
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 State = BallState.Still;
@@ -146,6 +160,7 @@ public class Ball : MonoBehaviour {
         }
         if (State == BallState.Hit)
         {
+            
             GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<Rigidbody>().AddForce(forceToApply, ForceMode.Force);
             State = BallState.Ground;
@@ -162,15 +177,35 @@ public class Ball : MonoBehaviour {
             Vector3 normal = floor.GetNormal(other.ClosestPoint(transform.position));
             Vector3 v = GetComponent<Rigidbody>().velocity;
 
-            Vector3 vn = Vector3.Project(v, normal);
-            v -= vn;
+            if (State == BallState.Air)
+            {
+                Vector3 vn = Vector3.Project(v, normal);
+                v -= vn;
 
-            v -= vn * floor.normalBounceK;
+                v -= vn * floor.normalBounceK;
 
-            GetComponent<Rigidbody>().velocity = v;
+                GetComponent<Rigidbody>().velocity = v;
 
-            if (floor.normalBounceK == 0)
-                state = BallState.Ground;
+                if (floor.normalBounceK == 0)
+                    state = BallState.Ground;
+            }
+            else if (State == BallState.Ground)
+            {
+                Vector3 vn = Vector3.Project(v, normal);
+                float dir = Vector3.Dot(v, normal);
+                if (dir > 0) //  fall
+                {
+                    state = BallState.Air;
+                    //GetComponent<Rigidbody>().velocity = Vector3.zero;
+                }
+                if (dir < 0)  //  climb
+                {
+                    v -= vn;
+                    GetComponent<Rigidbody>().velocity = v;
+                }
+
+
+            }
         }
     }
 
