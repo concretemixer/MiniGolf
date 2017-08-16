@@ -6,16 +6,19 @@ public class Ball : MonoBehaviour {
 
     enum BallState
     {
+        Launch,
         Air,
+        Hit,
         Ground,
         Still
     }
 
-    BallState state = BallState.Still;
+    Vector3 forceToApply = Vector3.zero;
+    BallState state = BallState.Air;
     float timeInState = 0;
 
     bool aiming = false;
-    bool ballistic = false;
+    bool ballistic = true;
 
     private BallState State
     {
@@ -71,13 +74,13 @@ public class Ball : MonoBehaviour {
                             Vector3 tangent = Vector3.Cross(Vector3.up, dir);
 
                             dir = Quaternion.AngleAxis(45, tangent) * dir;
-                            GetComponent<Rigidbody>().AddForce(-dir * Mathf.Lerp(10, 100, forceK), ForceMode.Force);
-                            State = BallState.Air;
+                            forceToApply = -dir * Mathf.Lerp(10, 100, forceK);                            
+                            State = BallState.Launch;
                         }
                         else
                         {
-                            GetComponent<Rigidbody>().AddForce(-dir * Mathf.Lerp(10, 100, forceK), ForceMode.Force);
-                            State = BallState.Ground;
+                            forceToApply = -dir * Mathf.Lerp(10, 100, forceK);
+                            State = BallState.Hit;
                         }
 
                         //Debug.Log("d = " + dir.magnitude);
@@ -125,13 +128,50 @@ public class Ball : MonoBehaviour {
         }
         if (State == BallState.Ground)
         {
-            if (timeInState > 1.0f && GetComponent<Rigidbody>().velocity.magnitude < 0.01f)
+            if (/*timeInState > 1.0f &&*/ GetComponent<Rigidbody>().velocity.magnitude < 0.01f)
             {
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 State = BallState.Still;
             }
         }
-     
+        if (State == BallState.Still)
+        {
+            GetComponent<Rigidbody>().isKinematic = true;
+        }
+        if (State == BallState.Launch)
+        {
+            GetComponent<Rigidbody>().isKinematic = false;
+            GetComponent<Rigidbody>().AddForce(forceToApply, ForceMode.Force);
+            State = BallState.Air;
+        }
+        if (State == BallState.Hit)
+        {
+            GetComponent<Rigidbody>().isKinematic = false;
+            GetComponent<Rigidbody>().AddForce(forceToApply, ForceMode.Force);
+            State = BallState.Ground;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(" = " + other.gameObject.name);
+
+        Floor floor = other.GetComponentInParent<Floor>();
+        if (floor!=null)
+        {            
+            Vector3 normal = floor.GetNormal(other.ClosestPoint(transform.position));
+            Vector3 v = GetComponent<Rigidbody>().velocity;
+
+            Vector3 vn = Vector3.Project(v, normal);
+            v -= vn;
+
+            v -= vn * floor.normalBounceK;
+
+            GetComponent<Rigidbody>().velocity = v;
+
+            if (floor.normalBounceK == 0)
+                state = BallState.Ground;
+        }
     }
 
 }
