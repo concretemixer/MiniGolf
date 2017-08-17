@@ -13,7 +13,8 @@ public class Ball : MonoBehaviour {
         Air,
         Hit,
         Ground,
-        Still
+        Still,
+        Sinking
     }
 
     Vector3 forceToApply = Vector3.zero;
@@ -22,6 +23,11 @@ public class Ball : MonoBehaviour {
 
     bool aiming = false;
     bool ballistic = false;
+
+    public void SetBallistic(bool value)
+    {
+        ballistic = value;
+    }
 
     private BallState State
     {
@@ -136,6 +142,11 @@ public class Ball : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if (State == BallState.Sinking)
+        {
+            GetComponent<Rigidbody>().drag = 0;
+            GetComponent<Rigidbody>().AddForce(-Vector3.up * 0.5f, ForceMode.Force);
+        }
         if (State == BallState.Air)
         {
             GetComponent<Rigidbody>().drag = 0;
@@ -189,6 +200,13 @@ public class Ball : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        Hole hole = other.GetComponentInParent<Hole>();
+        if (hole!= null)
+        {
+            Vector3 v = GetComponent<Rigidbody>().velocity;
+            GetComponent<Rigidbody>().velocity = v * 0.3f;
+            State = BallState.Sinking;
+        }
 
         Wall wall = other.GetComponentInParent<Wall>();
         if (wall != null)
@@ -196,10 +214,13 @@ public class Ball : MonoBehaviour {
             Debug.Log("Wall = " + other.gameObject.name);
             Vector3 normal = wall.GetNormal(other.ClosestPoint(transform.position));
             Vector3 v = GetComponent<Rigidbody>().velocity;
-            Vector3 vn = Vector3.Project(v, normal);
-            v -= vn;
-            v -= vn * wall.normalBounceK;
-            GetComponent<Rigidbody>().velocity = v;
+            if (Vector3.Dot(v, normal) > 0)
+            {
+                Vector3 vn = Vector3.Project(v, normal);
+                v -= vn;
+                v -= vn * wall.normalBounceK;
+                GetComponent<Rigidbody>().velocity = v;
+            }
         }
 
         Floor floor = other.GetComponentInParent<Floor>();
