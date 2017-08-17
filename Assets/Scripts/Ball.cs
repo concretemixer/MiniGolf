@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class Ball : MonoBehaviour {
 
+    private float Radius = 0.1f;
+
     enum BallState
     {
         Launch,
@@ -142,6 +144,23 @@ public class Ball : MonoBehaviour {
         if (State == BallState.Ground)
         {
             GetComponent<Rigidbody>().drag = 0.5f;
+           
+            Ray ray = new Ray(transform.position, Vector3.down);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 0x0FF))
+            {
+                if (hit.distance > Radius * 1.1f)
+                {
+                    State = BallState.Air;
+                    Debug.Log("fall 1");
+                }
+            }
+            else
+            {
+                State = BallState.Air;
+                Debug.Log("fall 2");
+            }
+
             if (/*timeInState > 1.0f &&*/ GetComponent<Rigidbody>().velocity.magnitude < 0.05f)
             {
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
@@ -151,6 +170,7 @@ public class Ball : MonoBehaviour {
         if (State == BallState.Still)
         {
             GetComponent<Rigidbody>().isKinematic = true;
+            transform.localRotation = Quaternion.identity;
         }
         if (State == BallState.Launch)
         {
@@ -169,11 +189,22 @@ public class Ball : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log(" = " + other.gameObject.name);
+
+        Wall wall = other.GetComponentInParent<Wall>();
+        if (wall != null)
+        {
+            Debug.Log("Wall = " + other.gameObject.name);
+            Vector3 normal = wall.GetNormal(other.ClosestPoint(transform.position));
+            Vector3 v = GetComponent<Rigidbody>().velocity;
+            Vector3 vn = Vector3.Project(v, normal);
+            v -= vn;
+            v -= vn * wall.normalBounceK;
+            GetComponent<Rigidbody>().velocity = v;
+        }
 
         Floor floor = other.GetComponentInParent<Floor>();
-        if (floor!=null)
-        {            
+        if (floor != null)
+        {
             Vector3 normal = floor.GetNormal(other.ClosestPoint(transform.position));
             Vector3 v = GetComponent<Rigidbody>().velocity;
 
@@ -195,7 +226,7 @@ public class Ball : MonoBehaviour {
                 float dir = Vector3.Dot(v, normal);
                 if (dir > 0) //  fall
                 {
-                    state = BallState.Air;
+                    //state = BallState.Air;
                     //GetComponent<Rigidbody>().velocity = Vector3.zero;
                 }
                 if (dir < 0)  //  climb
@@ -207,6 +238,6 @@ public class Ball : MonoBehaviour {
 
             }
         }
-    }
 
+    }
 }
