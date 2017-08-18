@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Ball : MonoBehaviour {
+public class Ball : MonoBehaviour
+{
 
     private float Radius = 0.1f;
 
@@ -17,13 +18,17 @@ public class Ball : MonoBehaviour {
         Sinking
     }
 
+
     Vector3 forceToApply = Vector3.zero;
     BallState state = BallState.Air;
     float timeInState = 0;
     float angularVelocity = 0;
+    float stillTimer = 0;
 
     bool aiming = false;
     bool ballistic = false;
+
+    int inCollisionCount = 0;
 
     public void SetBallistic(bool value)
     {
@@ -45,9 +50,10 @@ public class Ball : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
-		
-	}
+    void Start()
+    {
+
+    }
 
 
     void UpdateHUD()
@@ -60,7 +66,8 @@ public class Ball : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         UpdateHUD();
 
         timeInState += Time.deltaTime;
@@ -96,19 +103,19 @@ public class Ball : MonoBehaviour {
                             Vector3 tangent = Vector3.Cross(Vector3.up, dir);
 
                             dir = Quaternion.AngleAxis(45, tangent) * dir;
-                            forceToApply = -dir * Mathf.Lerp(10, 100, forceK);                            
+                            forceToApply = -dir * Mathf.Lerp(30, 100, forceK);
                             State = BallState.Launch;
                         }
                         else
                         {
-                            forceToApply = -dir * Mathf.Lerp(10, 100, forceK);
+                            forceToApply = -dir * Mathf.Lerp(30, 100, forceK);
                             State = BallState.Hit;
                         }
 
                         //Debug.Log("d = " + dir.magnitude);
 
                         aiming = false;
-                        
+
                     }
                 }
             }
@@ -120,7 +127,7 @@ public class Ball : MonoBehaviour {
                 {
                     //Vector3 touchBall = ray.origin + ray.direction * hit.distance;
                     //target.transform.position = touchGround;  
-                    Debug.Log("Touch");
+                   // Debug.Log("Touch");
                     aiming = true;
                 }
             }
@@ -129,10 +136,10 @@ public class Ball : MonoBehaviour {
         {
             Vector3 velocity = GetComponent<Rigidbody>().velocity;
             float distance = velocity.magnitude * Time.deltaTime;
-            Vector3 tangent = Vector3.Cross(Vector3.up,velocity);
+            Vector3 tangent = Vector3.Cross(Vector3.up, velocity);
 
             float angle = distance / 0.1f;
-            
+
 
             transform.Rotate(tangent, Mathf.Rad2Deg * angle);
             angularVelocity = angle;
@@ -143,7 +150,7 @@ public class Ball : MonoBehaviour {
             Vector3 tangent = Vector3.Cross(Vector3.up, velocity);
 
             transform.Rotate(tangent, Mathf.Rad2Deg * angularVelocity);
-            angularVelocity = Mathf.Lerp(angularVelocity,0,Time.deltaTime);
+            angularVelocity = Mathf.Lerp(angularVelocity, 0, Time.deltaTime);
         }
     }
 
@@ -165,22 +172,22 @@ public class Ball : MonoBehaviour {
         if (State == BallState.Ground)
         {
             GetComponent<Rigidbody>().drag = 0.5f;
-           
+
             Ray ray = new Ray(transform.position, Vector3.down);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 0x0FF))
             {
-                if (hit.distance > Radius * 1.1f)
-                {
+                if (inCollisionCount==0 && hit.distance > Radius * 1.1f)
+                {                    
                     State = BallState.Air;
-                    Debug.Log("fall 1");
+                 //   Debug.Log("fall 1");
                 }
                 else
                 {
                     Floor floor = hit.collider.GetComponentInParent<Floor>();
                     if (floor != null)
                     {
-                        Debug.Log("Slide");
+                    //    Debug.Log("Slide");
                         Vector3 normal = floor.GetNormal(hit.collider.ClosestPoint(transform.position));
                         Vector3 slope = normal + Vector3.down;
                         GetComponent<Rigidbody>().AddForce(slope * 0.5f, ForceMode.Force);
@@ -190,14 +197,20 @@ public class Ball : MonoBehaviour {
             else
             {
                 State = BallState.Air;
-                Debug.Log("fall 2");
+              //  Debug.Log("fall 2");
             }
 
-            if (/*timeInState > 1.0f &&*/ GetComponent<Rigidbody>().velocity.magnitude < 0.05f)
+            if (GetComponent<Rigidbody>().velocity.magnitude < 0.05f)
             {
-                GetComponent<Rigidbody>().velocity = Vector3.zero;
-                State = BallState.Still;
+                stillTimer += Time.fixedDeltaTime;
+                if (stillTimer > 0.5f)
+                {
+                    GetComponent<Rigidbody>().velocity = Vector3.zero;
+                    State = BallState.Still;
+                }
             }
+            else
+                stillTimer = 0;
         }
         if (State == BallState.Still)
         {
@@ -212,7 +225,7 @@ public class Ball : MonoBehaviour {
         }
         if (State == BallState.Hit)
         {
-            
+
             GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<Rigidbody>().AddForce(forceToApply, ForceMode.Force);
             State = BallState.Ground;
@@ -221,9 +234,10 @@ public class Ball : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("collider = " + other.name);
+        inCollisionCount++;
+       // Debug.Log("collider = " + other.name);
         Hole hole = other.GetComponentInParent<Hole>();
-        if (hole!= null)
+        if (hole != null)
         {
             Vector3 v = GetComponent<Rigidbody>().velocity;
             GetComponent<Rigidbody>().velocity = v * 0.3f;
@@ -284,5 +298,11 @@ public class Ball : MonoBehaviour {
             }
         }
 
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        inCollisionCount--;
+        //Debug.Log("collider out = " + other.name);
     }
 }
