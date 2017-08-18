@@ -20,6 +20,7 @@ public class Ball : MonoBehaviour {
     Vector3 forceToApply = Vector3.zero;
     BallState state = BallState.Air;
     float timeInState = 0;
+    float angularVelocity = 0;
 
     bool aiming = false;
     bool ballistic = false;
@@ -134,6 +135,15 @@ public class Ball : MonoBehaviour {
             
 
             transform.Rotate(tangent, Mathf.Rad2Deg * angle);
+            angularVelocity = angle;
+        }
+        if (state == BallState.Air || state == BallState.Sinking)
+        {
+            Vector3 velocity = GetComponent<Rigidbody>().velocity;
+            Vector3 tangent = Vector3.Cross(Vector3.up, velocity);
+
+            transform.Rotate(tangent, Mathf.Rad2Deg * angularVelocity);
+            angularVelocity = Mathf.Lerp(angularVelocity,0,Time.deltaTime);
         }
     }
 
@@ -145,12 +155,12 @@ public class Ball : MonoBehaviour {
         if (State == BallState.Sinking)
         {
             GetComponent<Rigidbody>().drag = 0;
-            GetComponent<Rigidbody>().AddForce(-Vector3.up * 0.5f, ForceMode.Force);
+            GetComponent<Rigidbody>().AddForce(Vector3.down * 0.5f, ForceMode.Force);
         }
         if (State == BallState.Air)
         {
             GetComponent<Rigidbody>().drag = 0;
-            GetComponent<Rigidbody>().AddForce(-Vector3.up * 0.5f, ForceMode.Force);
+            GetComponent<Rigidbody>().AddForce(Vector3.down * 0.5f, ForceMode.Force);
         }
         if (State == BallState.Ground)
         {
@@ -164,6 +174,17 @@ public class Ball : MonoBehaviour {
                 {
                     State = BallState.Air;
                     Debug.Log("fall 1");
+                }
+                else
+                {
+                    Floor floor = hit.collider.GetComponentInParent<Floor>();
+                    if (floor != null)
+                    {
+                        Debug.Log("Slide");
+                        Vector3 normal = floor.GetNormal(hit.collider.ClosestPoint(transform.position));
+                        Vector3 slope = normal + Vector3.down;
+                        GetComponent<Rigidbody>().AddForce(slope * 0.5f, ForceMode.Force);
+                    }
                 }
             }
             else
@@ -200,12 +221,15 @@ public class Ball : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log("collider = " + other.name);
         Hole hole = other.GetComponentInParent<Hole>();
         if (hole!= null)
         {
             Vector3 v = GetComponent<Rigidbody>().velocity;
             GetComponent<Rigidbody>().velocity = v * 0.3f;
             State = BallState.Sinking;
+            foreach (var c in hole.GetComponentsInChildren<BoxCollider>())
+                c.enabled = true;
         }
 
         Wall wall = other.GetComponentInParent<Wall>();
