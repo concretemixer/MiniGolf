@@ -156,7 +156,7 @@ public class Ball : MonoBehaviour
 
 
 
-
+  /*
     void FixedUpdate()
     {
         if (State == BallState.Sinking)
@@ -231,7 +231,8 @@ public class Ball : MonoBehaviour
             State = BallState.Ground;
         }
     }
-
+              */
+              /*
     void OnTriggerEnter(Collider other)
     {
         inCollisionCount++;
@@ -305,4 +306,5 @@ public class Ball : MonoBehaviour
         inCollisionCount--;
         //Debug.Log("collider out = " + other.name);
     }
+    */
 }
