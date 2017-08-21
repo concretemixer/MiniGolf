@@ -1,10 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
+
+
+public class BallLostEvent : UnityEvent
+{
+}
+
+public class BallHitEvent : UnityEvent
+{
+}
+
+public class BallStoppedEvent : UnityEvent
+{
+}
+
+public class BallHoleEvent : UnityEvent
+{
+}
+
+
 
 public class Ball2 : MonoBehaviour
 {
+    public float AirDragDefault = 0.5f;
+    public float GroundDragDefault = 1.0f;
+
+    public BallHitEvent ballHitEvent = new BallHitEvent();
+    public BallLostEvent ballLostEvent = new BallLostEvent();
+    public BallStoppedEvent ballStoppedEvent = new BallStoppedEvent();
+    public BallHoleEvent ballHoleEvent = new BallHoleEvent();
 
     private float Radius = 0.1f;
 
@@ -14,8 +41,7 @@ public class Ball2 : MonoBehaviour
         Air,
         Hit,
         Ground,
-        Still,
-        Sinking
+        Still        
     }
 
 
@@ -29,6 +55,8 @@ public class Ball2 : MonoBehaviour
     bool ballistic = false;
 
     int inCollisionCount = 0;
+    private Dictionary<int, float> dragKStack = new Dictionary<int, float>();
+
 
     public void SetBallistic(bool value)
     {
@@ -145,7 +173,7 @@ public class Ball2 : MonoBehaviour
             //  transform.Rotate(tangent, Mathf.Rad2Deg * angle);
             // angularVelocity = angle;
         }
-        if (state == BallState.Air || state == BallState.Sinking)
+        if (state == BallState.Air)
         {
             //Vector3 velocity = GetComponent<Rigidbody>().velocity;
             //   Vector3 tangent = Vector3.Cross(Vector3.up, velocity);
@@ -160,17 +188,18 @@ public class Ball2 : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (State == BallState.Sinking)
-        {
-
-        }
         if (State == BallState.Air)
         {
-
+            GetComponent<Rigidbody>().drag = AirDragDefault; 
+            if (inCollisionCount > 0)
+                State = BallState.Ground;
         }
-        if (State == BallState.Ground)
+        else if (State == BallState.Ground)
         {
-
+            GetComponent<Rigidbody>().drag = dragModifier.dragK;
+            //  GetComponent<Rigidbody>().drag = GroundDragDefault;
+            if (inCollisionCount <= 0)
+                State = BallState.Air;
         }
         if (State == BallState.Still)
         {
@@ -180,6 +209,7 @@ public class Ball2 : MonoBehaviour
         {
             GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<Rigidbody>().AddForce(forceToApply, ForceMode.Force);
+            ballHitEvent.Invoke();
             State = BallState.Air;
         }
         if (State == BallState.Hit)
@@ -187,88 +217,63 @@ public class Ball2 : MonoBehaviour
 
             GetComponent<Rigidbody>().isKinematic = false;
             GetComponent<Rigidbody>().AddForce(forceToApply, ForceMode.Force);
+            ballHitEvent.Invoke();
             State = BallState.Ground;
         }
     }
 
-    /*
-void OnTriggerEnter(Collider other)
-{
-inCollisionCount++;
-// Debug.Log("collider = " + other.name);
-Hole hole = other.GetComponentInParent<Hole>();
-if (hole != null)
-{
-  Vector3 v = GetComponent<Rigidbody>().velocity;
-  GetComponent<Rigidbody>().velocity = v * 0.3f;
-  State = BallState.Sinking;
-  foreach (var c in hole.GetComponentsInChildren<BoxCollider>())
-      c.enabled = true;
-}
+    void OnTriggerEnter(Collider other)
+    {
+        inCollisionCount++;
+        // Debug.Log("collider = " + other.name);
+        Hole hole = other.GetComponent<Hole>();
+        if (hole != null)
+        {
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            ballHoleEvent.Invoke();
+        }
 
-Wall wall = other.GetComponentInParent<Wall>();
-if (wall != null)
-{
-  Debug.Log("Wall = " + other.gameObject.name);
-  Vector3 normal = wall.GetNormal(other.ClosestPoint(transform.position));
-  Vector3 v = GetComponent<Rigidbody>().velocity;
-  if (Vector3.Dot(v, normal) > 0)
-  {
-      Vector3 vn = Vector3.Project(v, normal);
-      v -= vn;
-      v -= vn * wall.normalBounceK;
-      GetComponent<Rigidbody>().velocity = v;
-  }
-}
+        DragModifier dragModifier = other.GetComponent<DragModifier>();
+        if (dragModifier != null)
+        {
+            dragKStack[other.gameObject.GetInstanceID()] = dragModifier.dragK;
+          
+        }
+    }
 
-Floor floor = other.GetComponentInParent<Floor>();
-if (floor != null)
-{
-  Vector3 normal = floor.GetNormal(other.ClosestPoint(transform.position));
-  Vector3 v = GetComponent<Rigidbody>().velocity;
+    void OnTriggerExit(Collider other)
+    {
+        inCollisionCount--;
+        DragModifier dragModifier = other.GetComponent<DragModifier>();
+        if (dragModifier != null)
+        {
+            dragKStack.Remove(other.gameObject.GetInstanceID());
+         
+        }
+    }
 
-  if (State == BallState.Air)
-  {
-      Vector3 vn = Vector3.Project(v, normal);
-      v -= vn;
-
-      v -= vn * floor.normalBounceK;
-
-      GetComponent<Rigidbody>().velocity = v;
-
-      if (floor.normalBounceK == 0)
-          state = BallState.Ground;
-  }
-  else if (State == BallState.Ground)
-  {
-      Vector3 vn = Vector3.Project(v, normal);
-      float dir = Vector3.Dot(v, normal);
-      if (dir > 0) //  fall
-      {
-          //state = BallState.Air;
-          //GetComponent<Rigidbody>().velocity = Vector3.zero;
-      }
-      if (dir < 0)  //  climb
-      {
-          v -= vn;
-          GetComponent<Rigidbody>().velocity = v;
-      }
-
-
-  }
-}
-
-}
-
-void OnTriggerExit(Collider other)
-{
-inCollisionCount--;
-//Debug.Log("collider out = " + other.name);
-}
-*/
+    
 
     void OnCollisionEnter(Collision other)
     {
-     //   Debug.Log("collider = " + other.gameObject.name);
+        inCollisionCount++;
+
+        DragModifier dragModifier = other.gameObject.GetComponent<DragModifier>();
+        if (dragModifier != null)
+        {
+            dragKStack[other.gameObject.GetInstanceID()] = dragModifier.dragK;            
+        }
+        //   Debug.Log("collider = " + other.gameObject.name);
+    }
+
+    void OnCollisionExit(Collision other)
+    {
+        inCollisionCount--;
+        DragModifier dragModifier = other.gameObject.GetComponent<DragModifier>();
+        if (dragModifier != null)
+        {
+            dragKStack.Remove(other.gameObject.GetInstanceID());            
+        }
+        //   Debug.Log("collider = " + other.gameObject.name);
     }
 }
