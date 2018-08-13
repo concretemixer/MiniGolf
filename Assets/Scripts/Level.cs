@@ -18,14 +18,18 @@ public class Level : MonoBehaviour {
     public LevelCompleteEvent levelCompleteEvent = new LevelCompleteEvent();
     public LevelStartEvent levelStartEvent = new LevelStartEvent();
 
+    Vector3 ballPrevPos;
+    Ball2 ball;
 
     // Use this for initialization
     void Start () {
         levelStartEvent.Invoke();
-        Ball2 ball = GameObject.FindObjectOfType<Ball2>();
+        ball = GameObject.FindObjectOfType<Ball2>();
         if (ball!=null)
         {
             ball.ballHoleEvent.AddListener(onBallHole);
+            ball.ballHitEvent.AddListener(onBallHit);
+            ball.ballLostEvent.AddListener(onBallLost);
         }
 	}
 	
@@ -36,6 +40,17 @@ public class Level : MonoBehaviour {
 
     void onBallHole()
     {
-        Debug.Log("HOLE!");
+        levelCompleteEvent.Invoke();        
+    }
+
+    void onBallHit()
+    {
+        ballPrevPos = ball.transform.position;    
+    }
+
+    void onBallLost()
+    {
+        ball.State = Ball2.BallState.Still;
+        ball.transform.position = ballPrevPos;        
     }
 }

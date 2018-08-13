@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DragModifier : MonoBehaviour {
 
-    public float dragK = 0.5f;
+    public float dragK = 0;
 	// Use this for initialization
 	void Start () {
 		
