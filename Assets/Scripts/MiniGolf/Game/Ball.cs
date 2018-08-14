@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/*
 public class Ball : MonoBehaviour
 {
 
@@ -306,5 +308,6 @@ public class Ball : MonoBehaviour
         inCollisionCount--;
         //Debug.Log("collider out = " + other.name);
     }
-    */
+    
 }
+*/

@@ -4,9 +4,10 @@ using UnityEngine;
 
 namespace MiniGolf.Game
 {
-    public class Hole : MonoBehaviour
+    public class DragModifier : MonoBehaviour
     {
 
+        public float dragK = 0;
         // Use this for initialization
         void Start()
         {

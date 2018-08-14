@@ -4,53 +4,59 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-public class LevelStartEvent : UnityEvent
+namespace MiniGolf.Game
 {
-}
+    public class LevelStartEvent : UnityEvent
+    {
+    }
 
-public class LevelCompleteEvent : UnityEvent
-{
-}
+    public class LevelCompleteEvent : UnityEvent
+    {
+    }
 
 
-public class Level : MonoBehaviour {
-    
-    public LevelCompleteEvent levelCompleteEvent = new LevelCompleteEvent();
-    public LevelStartEvent levelStartEvent = new LevelStartEvent();
+    public class Level : MonoBehaviour
+    {
 
-    Vector3 ballPrevPos;
-    Ball2 ball;
+        public LevelCompleteEvent levelCompleteEvent = new LevelCompleteEvent();
+        public LevelStartEvent levelStartEvent = new LevelStartEvent();
 
-    // Use this for initialization
-    void Start () {
-        levelStartEvent.Invoke();
-        ball = GameObject.FindObjectOfType<Ball2>();
-        if (ball!=null)
+        Vector3 ballPrevPos;
+        Ball2 ball;
+
+        // Use this for initialization
+        void Start()
         {
-            ball.ballHoleEvent.AddListener(onBallHole);
-            ball.ballHitEvent.AddListener(onBallHit);
-            ball.ballLostEvent.AddListener(onBallLost);
+            levelStartEvent.Invoke();
+            ball = GameObject.FindObjectOfType<Ball2>();
+            if (ball != null)
+            {
+                ball.ballHoleEvent.AddListener(onBallHole);
+                ball.ballHitEvent.AddListener(onBallHit);
+                ball.ballLostEvent.AddListener(onBallLost);
+            }
         }
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        
-	}
 
-    void onBallHole()
-    {
-        levelCompleteEvent.Invoke();        
-    }
+        // Update is called once per frame
+        void Update()
+        {
 
-    void onBallHit()
-    {
-        ballPrevPos = ball.transform.position;    
-    }
+        }
 
-    void onBallLost()
-    {
-        ball.State = Ball2.BallState.Still;
-        ball.transform.position = ballPrevPos;        
+        void onBallHole()
+        {
+            levelCompleteEvent.Invoke();
+        }
+
+        void onBallHit()
+        {
+            ballPrevPos = ball.transform.position;
+        }
+
+        void onBallLost()
+        {
+            ball.State = Ball2.BallState.Still;
+            ball.transform.position = ballPrevPos;
+        }
     }
 }

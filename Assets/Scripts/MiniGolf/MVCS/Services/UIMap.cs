@@ -7,7 +7,7 @@ namespace MiniGolf.MVCS.Services
     {
         public static Dictionary<Id, string> map = new Dictionary<Id, string>
         {
-            {Id.ScreenHUD, "UI/ScreenHUDView"},
+            {Id.GameHUD, "UI/GameHUD"},
             {Id.PauseMenu, "UI/ScreenPauseMenu"},
             {Id.LevelFailedMenu, "UI/LevelFailedMenu"},
             {Id.LevelDoneMenu, "UI/LevelDoneMenu"},
@@ -27,7 +27,7 @@ namespace MiniGolf.MVCS.Services
 
         public enum Id
         {
-            ScreenHUD,
+            GameHUD,
             PauseMenu,
             LevelDoneMenu,
             TutorialDoneMenu,

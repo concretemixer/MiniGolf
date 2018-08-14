@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 using strange.extensions.command.impl;
 using MiniGolf.MVCS.Services;
-using MiniGolf.MVCS;
+using MiniGolf.Game;
 
 
 namespace MiniGolf.MVCS.Commands
@@ -24,6 +24,9 @@ namespace MiniGolf.MVCS.Commands
         {
             UI.HideAll();
 
+            safeUnbind<Level>(GameState.Current);
+            safeUnbind<Ball2>(GameState.Current);
+
             stageMenu.SetActive(false);
 
             if (stage.transform.childCount > 0)
@@ -35,8 +38,15 @@ namespace MiniGolf.MVCS.Commands
             root.transform.SetParent(stage.transform);
             root.tag = "Untagged";
 
+            Level level = root.GetComponentInChildren<Level>();
+            Ball2 ball = root.GetComponentInChildren<Ball2>();
+            injectionBinder.injector.Inject(level);
+            injectionBinder.injector.Inject(ball);
+            
+            injectionBinder.Bind<Level>().To(level).ToName(GameState.Current);
+            injectionBinder.Bind<Ball2>().To(ball).ToName(GameState.Current);
 
-            //UI.Show(UIMap.Id.ScreenHUD);
+            UI.Show(UIMap.Id.GameHUD);
         }
      
 

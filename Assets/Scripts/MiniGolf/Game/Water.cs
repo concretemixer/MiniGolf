@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 namespace MiniGolf.Game
 {
-    public class Hole : MonoBehaviour
+    public class Water : MonoBehaviour
     {
 
         // Use this for initialization
