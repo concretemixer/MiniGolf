@@ -9,7 +9,6 @@ namespace MiniGolf.MVCS.Signals
     {
     }
 
-
     public class LevelFailed : Signal
     {
     }
@@ -30,5 +29,24 @@ namespace MiniGolf.MVCS.Signals
     {
     }
 
+    public class BallLost : Signal
+    {
+    }
+
+    public class BallHit : Signal<float>
+    {
+    }
+
+    public class BallStopped : Signal
+    {
+    }
+
+    public class BallHole : Signal
+    {
+    }
+
+    public class BallSetForce : Signal<float>
+    {
+    }
 
 }

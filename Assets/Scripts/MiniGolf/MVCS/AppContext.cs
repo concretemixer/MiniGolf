@@ -91,12 +91,20 @@ namespace MiniGolf.MVCS
 
         void mapSignals()
         {
+            injectionBinder.Bind<BallHit>().ToSingleton();
+            injectionBinder.Bind<BallHole>().ToSingleton();
+            injectionBinder.Bind<BallLost>().ToSingleton();
+            injectionBinder.Bind<BallSetForce>().ToSingleton();
+            injectionBinder.Bind<BallStopped>().ToSingleton();
+
+            injectionBinder.Bind<LevelComplete>().ToSingleton();
+
             /*
             injectionBinder.Bind<OrientationChangedSignal>().ToSingleton();
             injectionBinder.Bind<VehicleReachedDestination>().ToSingleton();
             injectionBinder.Bind<VehicleCrashed>().ToSingleton();
             injectionBinder.Bind<LevelFailed>().ToSingleton();
-            injectionBinder.Bind<LevelComplete>().ToSingleton();
+            
             injectionBinder.Bind<ScoreGrow>().ToSingleton();
             injectionBinder.Bind<ResumeTutorial>().ToSingleton();
             injectionBinder.Bind<PurchaseFailed>().ToSingleton();

@@ -31,11 +31,12 @@ namespace MiniGolf.MVCS.Commands
 
             Time.timeScale = 0.85f;
 
-			//safeUnbind<ILevelModel>(GameState.Current);
+            //safeUnbind<ILevelModel>(GameState.Current);
             //LevelModel levelModel = injectionBinder.GetInstance<ILevelModel>() as LevelModel;
             //injectionBinder.Bind<ILevelModel>().To(levelModel).ToName(GameState.Current);
-	        
-            SceneManager.LoadScene("Level1", LoadSceneMode.Additive);                
+
+            UI.Show(UIMap.Id.ScreenLoading);
+            SceneManager.LoadScene(@"Level1", LoadSceneMode.Additive);                
 	    }
         /*
         public override void Execute()

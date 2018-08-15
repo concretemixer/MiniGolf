@@ -13,7 +13,13 @@ namespace MiniGolf.MVCS.Views
 
         [SerializeField]
         Toggle hitHorizontalToggle;
-        
+
+        [SerializeField]
+        Slider forceSlider;
+
+        [SerializeField]
+        Slider forceSliderHistory;
+
         public readonly Signal<bool> onToggle = new Signal<bool>();
 
         protected override void Awake()
@@ -34,6 +40,14 @@ namespace MiniGolf.MVCS.Views
         {
             hitHorizontalToggle.isOn = value;
             hitUpToggle.isOn = !value;
+        }
+
+        public void ShowHitForce(float value, float prev)
+        {
+            if (value >= 0)
+                forceSlider.value = value;
+            if (prev >= 0)
+                forceSliderHistory.value = prev;
         }
     }
 }

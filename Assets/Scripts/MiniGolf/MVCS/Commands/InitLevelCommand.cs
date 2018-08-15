@@ -40,11 +40,11 @@ namespace MiniGolf.MVCS.Commands
 
             Level level = root.GetComponentInChildren<Level>();
             Ball2 ball = root.GetComponentInChildren<Ball2>();
-            injectionBinder.injector.Inject(level);
             injectionBinder.injector.Inject(ball);
-            
-            injectionBinder.Bind<Level>().To(level).ToName(GameState.Current);
+            injectionBinder.injector.Inject(level);
+
             injectionBinder.Bind<Ball2>().To(ball).ToName(GameState.Current);
+            injectionBinder.Bind<Level>().To(level).ToName(GameState.Current);
 
             UI.Show(UIMap.Id.GameHUD);
         }

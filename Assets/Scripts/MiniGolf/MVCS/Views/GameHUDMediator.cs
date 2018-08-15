@@ -34,7 +34,16 @@ namespace MiniGolf.MVCS.Views
             ball.SetBallistic(view.hitUpToggle.isOn);          
         }
 
-        
+        void setForceHandler(float value)
+        {
+            view.ShowHitForce(value, -1);
+        }
+
+        void setPrevForceHandler(float value)
+        {
+            view.ShowHitForce(-1, value);
+        }
+
 
         public override void OnRegister()
         {
@@ -42,12 +51,18 @@ namespace MiniGolf.MVCS.Views
             ball.SetBallistic(view.hitUpToggle.isOn);
 
             view.onToggle.AddListener(hitToggleHandler);
+
+            ball.ballSetForce.AddListener(setForceHandler);
+            ball.ballHit.AddListener(setPrevForceHandler);
+
             base.OnRegister();
         }
 
         public override void OnRemove()
         {
             view.onToggle.RemoveListener(hitToggleHandler);
+            ball.ballSetForce.RemoveListener(setForceHandler);
+            ball.ballHit.RemoveListener(setPrevForceHandler);
             base.OnRemove();
         }
     }

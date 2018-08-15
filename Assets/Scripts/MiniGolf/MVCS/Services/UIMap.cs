@@ -15,7 +15,7 @@ namespace MiniGolf.MVCS.Services
             {Id.TutorialFailedMenu,"UI/TutorialFailedMenu"},
             {Id.LevelListScreen, "UI/LevelListScreen"},
             { Id.ScreenMain, "UI/StartGameScreen" },
-            { Id.ScreenLoading, "UI/ScreenLoading" },
+            { Id.ScreenLoading, "UI/LoadingPanel" },
             { Id.ScreenTutorial, "UI/TutorialStepScreen" },
             { Id.ScreenDebug, "UI/ScreenDebug" },
             { Id.ScreenSettings, "UI/SettingsMenu" },

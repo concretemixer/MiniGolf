@@ -4,37 +4,30 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+using MiniGolf.MVCS.Signals;
 
 namespace MiniGolf.Game
 {
-    public class BallLostEvent : UnityEvent
-    {
-    }
-
-    public class BallHitEvent : UnityEvent
-    {
-    }
-
-    public class BallStoppedEvent : UnityEvent
-    {
-    }
-
-    public class BallHoleEvent : UnityEvent
-    {
-    }
-
-
-
     public class Ball2 : MonoBehaviour
     {
-        public float AirDragDefault = 0.2f;
+        public float AirDragDefault = 10.5f;
         public float GroundDragDefault = 1.0f;
         public float LowGroundLevel = -5f;
 
-        public BallHitEvent ballHitEvent = new BallHitEvent();
-        public BallLostEvent ballLostEvent = new BallLostEvent();
-        public BallStoppedEvent ballStoppedEvent = new BallStoppedEvent();
-        public BallHoleEvent ballHoleEvent = new BallHoleEvent();
+        [Inject]
+        public BallHit ballHit { get; set; }
+
+        [Inject]
+        public BallLost ballLost { get; set; }
+
+        [Inject]
+        public BallStopped ballStopped { get; set; }
+
+        [Inject]
+        public BallHole ballHole { get; set; }
+
+        [Inject]
+        public BallSetForce ballSetForce { get; set; }
 
         public enum BallState
         {
@@ -87,7 +80,15 @@ namespace MiniGolf.Game
         }
 
 
-       
+        float CountForceK(Vector3 touchGround)
+        {
+            Vector3 dir = touchGround - transform.position;
+
+            float forceK = Mathf.Clamp(dir.magnitude, 2f, 15.0f);
+            forceK = (forceK - 2f) / 13f;
+
+            return forceK;
+        }
 
         // Update is called once per frame
         void Update()
@@ -109,34 +110,38 @@ namespace MiniGolf.Game
                             GetComponent<LineRenderer>().enabled = true;
                             GetComponent<LineRenderer>().SetPosition(0, transform.position);
                             GetComponent<LineRenderer>().SetPosition(1, touchGround);
+
+                            float forceK = CountForceK(touchGround);
+                            ballSetForce.Dispatch(forceK);
                         }
 
                         if (Input.GetMouseButtonUp(0))
                         {
                             GetComponent<LineRenderer>().enabled = false;
                             Vector3 dir = touchGround - transform.position;
-
-                            float forceK = Mathf.Clamp(dir.magnitude, 2f, 10.0f);
-                            forceK = (forceK - 2f) / 8f;
-                            dir.y = 0;
                             dir.Normalize();
+
+                            float forceK = CountForceK(touchGround);
 
                             if (ballistic)
                             {
                                 Vector3 tangent = Vector3.Cross(Vector3.up, dir);
 
-                                dir = Quaternion.AngleAxis(45, tangent) * dir;
-                                forceToApply = -dir * Mathf.Lerp(100, 300, forceK);
+                                dir = Quaternion.AngleAxis(30, tangent) * dir;
+                                forceToApply = -dir * Mathf.Lerp(50, 300, forceK);
                                 State = BallState.Launch;
                             }
                             else
                             {
-                                forceToApply = -dir * Mathf.Lerp(100, 300, forceK);
+                                forceToApply = -dir * Mathf.Lerp(50, 300, forceK);
                                 State = BallState.Hit;
                             }
 
                             Debug.Log("d = " + forceToApply.magnitude);
-                            ballHitEvent.Invoke();
+
+                            ballSetForce.Dispatch(forceK);
+
+                            ballHit.Dispatch(forceK);
                             aiming = false;
 
                         }
@@ -196,7 +201,7 @@ namespace MiniGolf.Game
                 {
                     GetComponent<Rigidbody>().isKinematic = true;
                     State = BallState.None;
-                    ballLostEvent.Invoke();
+                    ballLost.Dispatch();
                 }
             }
 
@@ -270,7 +275,7 @@ namespace MiniGolf.Game
             if (hole != null)
             {
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
-                ballHoleEvent.Invoke();
+                ballHole.Dispatch();
             }
 
             DragModifier dragModifier = other.GetComponent<DragModifier>();

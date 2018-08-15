@@ -3,40 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+using MiniGolf.MVCS.Signals;
 
 namespace MiniGolf.Game
-{
-    public class LevelStartEvent : UnityEvent
-    {
-    }
-
-    public class LevelCompleteEvent : UnityEvent
-    {
-    }
-
-
+{    
     public class Level : MonoBehaviour
     {
-
-        public LevelCompleteEvent levelCompleteEvent = new LevelCompleteEvent();
-        public LevelStartEvent levelStartEvent = new LevelStartEvent();
+        [Inject]
+        public LevelComplete levelComplete { get; set; }
 
         Vector3 ballPrevPos;
         Ball2 ball;
 
         // Use this for initialization
         void Start()
-        {
-            levelStartEvent.Invoke();
+        {            
             ball = GameObject.FindObjectOfType<Ball2>();
-            if (ball != null)
-            {
-                ball.ballHoleEvent.AddListener(onBallHole);
-                ball.ballHitEvent.AddListener(onBallHit);
-                ball.ballLostEvent.AddListener(onBallLost);
-            }
         }
 
+       
+        [PostConstruct] 
+        void RegisterListeners()
+        {
+            ball.ballHole.AddListener(onBallHole);
+            ball.ballHit.AddListener(onBallHit);
+            ball.ballLost.AddListener(onBallLost);
+        }
+
+        void OnDestroy()
+        {
+            ball.ballHole.RemoveListener(onBallHole);
+            ball.ballHit.RemoveListener(onBallHit);
+            ball.ballLost.RemoveListener(onBallLost);
+        }
         // Update is called once per frame
         void Update()
         {
@@ -45,10 +44,10 @@ namespace MiniGolf.Game
 
         void onBallHole()
         {
-            levelCompleteEvent.Invoke();
+            levelComplete.Dispatch();
         }
 
-        void onBallHit()
+        void onBallHit(float forceK)
         {
             ballPrevPos = ball.transform.position;
         }
