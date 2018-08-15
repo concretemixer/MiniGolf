@@ -141,11 +141,11 @@ namespace MiniGolf.MVCS
         {
             mediationBinder.Bind<StartGameScreenView>().To<StartGameScreenMediator>();
             mediationBinder.Bind<GameHUDView>().To<GameHUDMediator>();
+            mediationBinder.Bind<LevelCompleteScreenView>().To<LevelCompleteScreenMediator>();
 
             /*
             mediationBinder.Bind<LevelListScreenView>().To<LevelListScreenMediator>();
             mediationBinder.Bind<LevelFailedMenuView>().To<LevelFailedMenuMediator>();
-            mediationBinder.Bind<LevelDoneMenuView>().To<LevelDoneMenuMediator>();
             mediationBinder.Bind<PauseMenuView>().To<PauseMenuMediator>();
             mediationBinder.Bind<LoadingScreenView>().To<LoadingScreenMediator>();
             mediationBinder.Bind<TutorialStepScreen>().To<TutorialStepMediator>();            

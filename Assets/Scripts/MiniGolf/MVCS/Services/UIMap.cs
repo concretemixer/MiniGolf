@@ -10,7 +10,7 @@ namespace MiniGolf.MVCS.Services
             {Id.GameHUD, "UI/GameHUD"},
             {Id.PauseMenu, "UI/ScreenPauseMenu"},
             {Id.LevelFailedMenu, "UI/LevelFailedMenu"},
-            {Id.LevelDoneMenu, "UI/LevelDoneMenu"},
+            {Id.LevelCompleteScreen, "UI/LevelCompleteScreen"},
             {Id.TutorialDoneMenu,"UI/TutorialDoneMenu"},
             {Id.TutorialFailedMenu,"UI/TutorialFailedMenu"},
             {Id.LevelListScreen, "UI/LevelListScreen"},
@@ -29,7 +29,7 @@ namespace MiniGolf.MVCS.Services
         {
             GameHUD,
             PauseMenu,
-            LevelDoneMenu,
+            LevelCompleteScreen,
             TutorialDoneMenu,
             TutorialFailedMenu,
             LevelFailedMenu,

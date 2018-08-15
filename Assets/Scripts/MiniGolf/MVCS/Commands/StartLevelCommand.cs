@@ -36,7 +36,7 @@ namespace MiniGolf.MVCS.Commands
             //injectionBinder.Bind<ILevelModel>().To(levelModel).ToName(GameState.Current);
 
             UI.Show(UIMap.Id.ScreenLoading);
-            SceneManager.LoadScene(@"Level1", LoadSceneMode.Additive);                
+            SceneManager.LoadScene(@"Level2", LoadSceneMode.Additive);                
 	    }
         /*
         public override void Execute()

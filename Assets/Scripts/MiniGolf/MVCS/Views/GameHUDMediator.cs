@@ -44,6 +44,10 @@ namespace MiniGolf.MVCS.Views
             view.ShowHitForce(-1, value);
         }
 
+        void levelCompleteHandler()
+        {
+            UI.Show(UIMap.Id.LevelCompleteScreen);
+        }
 
         public override void OnRegister()
         {
@@ -55,6 +59,8 @@ namespace MiniGolf.MVCS.Views
             ball.ballSetForce.AddListener(setForceHandler);
             ball.ballHit.AddListener(setPrevForceHandler);
 
+            level.levelComplete.AddListener(levelCompleteHandler);
+
             base.OnRegister();
         }
 
@@ -63,6 +69,7 @@ namespace MiniGolf.MVCS.Views
             view.onToggle.RemoveListener(hitToggleHandler);
             ball.ballSetForce.RemoveListener(setForceHandler);
             ball.ballHit.RemoveListener(setPrevForceHandler);
+            level.levelComplete.RemoveListener(levelCompleteHandler);
             base.OnRemove();
         }
     }

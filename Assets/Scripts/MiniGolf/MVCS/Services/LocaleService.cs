@@ -40,6 +40,9 @@ namespace MiniGolf.MVCS.Services
             entries.Add("%LOADING%", " LOADING...");
             entries.Add("%CHOOSE_LANG%", "CHOOSE LANGUAGE");
 
+            entries.Add("%LEVEL_COMPLETE%", "LEVEL COMPLETE");
+            entries.Add("%OK%", "OK");
+
             entries.Add("%LEVELS_DESC_SHOP%", "12 ADDITIONAL LEVELS FOR %PRICE_NO_ADS%");
             entries.Add("%NO_ADS_DESC_SHOP%", "TURN OFF ADVERTISMENTS FOR %PRICE_LEVELS%");
 
