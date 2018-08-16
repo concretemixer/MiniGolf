@@ -8,7 +8,7 @@ using MiniGolf.MVCS.Services;
 
 namespace MiniGolf.MVCS.Views
 {
-    public class LevelCompleteScreenMediator : Mediator
+    public class CourseCompleteScreenMediator : Mediator
     {
         [Inject(GameState.Current)]
         public Course course { get; set; }
@@ -17,7 +17,7 @@ namespace MiniGolf.MVCS.Views
         public StartLevelSignal startLevel { get; set; }
 
         [Inject]
-        public LevelCompleteScreenView view { get; set; }
+        public CourseCompleteScreenView view { get; set; }
 
         [Inject]
         public IUIManager UI { get; set; }
@@ -27,9 +27,7 @@ namespace MiniGolf.MVCS.Views
    
         void okHandler()
         {
-            UI.Hide(UIMap.Id.LevelCompleteScreen);
-            course.currentLevelIndex++;
-            startLevel.Dispatch(course.currentLevelIndex);
+            UI.Hide(UIMap.Id.CourseCompleteScreen);
         }
 
         public override void OnRegister()

@@ -17,6 +17,10 @@ namespace MiniGolf.MVCS.Views
         [Inject(GameState.Current)]
         public Ball2 ball { get; set; }
 
+        [Inject(GameState.Current)]
+        public Course course { get; set; }
+
+
         [Inject(EntryPoint.Container.Stage)]
         public GameObject stage { get; set; }
 
@@ -46,7 +50,10 @@ namespace MiniGolf.MVCS.Views
 
         void levelCompleteHandler()
         {
-            UI.Show(UIMap.Id.LevelCompleteScreen);
+            if (course.currentLevelIndex==course.LevelCount-1)
+                UI.Show(UIMap.Id.CourseCompleteScreen);
+            else
+                UI.Show(UIMap.Id.LevelCompleteScreen);
         }
 
         public override void OnRegister()

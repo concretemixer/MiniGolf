@@ -11,7 +11,7 @@ namespace MiniGolf.MVCS.Views
     public class StartGameScreenMediator : Mediator
     {
         [Inject]
-        public StartLevelSignal startLevel { get; set; }
+        public StartCourseSignal startCourse { get; set; }
 
         [Inject(EntryPoint.Container.Stage)]
         public GameObject stage { get; set; }
@@ -27,7 +27,7 @@ namespace MiniGolf.MVCS.Views
    
         void startHandler()
         {            
-            startLevel.Dispatch(1);
+            startCourse.Dispatch();
         }
 
 

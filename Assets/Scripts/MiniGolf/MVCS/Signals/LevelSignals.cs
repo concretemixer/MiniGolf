@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MiniGolf.MVCS.Signals
 {
-    public class LevelPackComplete : Signal
+    public class CourseComplete : Signal
     {
     }
 

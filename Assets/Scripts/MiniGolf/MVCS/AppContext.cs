@@ -65,7 +65,8 @@ namespace MiniGolf.MVCS
             commandBinder.Bind<StartupSignal>().InSequence()
                 .To<CreateServiceItemsCommand>()
                 .To<StartupCommand>();
-            
+
+            commandBinder.Bind<StartCourseSignal>().To<StartCourseCommand>();
             commandBinder.Bind<StartLevelSignal>().To<StartLevelCommand>();            
             commandBinder.Bind<InitLevelSignal>().To<InitLevelCommand>();
 
@@ -142,6 +143,7 @@ namespace MiniGolf.MVCS
             mediationBinder.Bind<StartGameScreenView>().To<StartGameScreenMediator>();
             mediationBinder.Bind<GameHUDView>().To<GameHUDMediator>();
             mediationBinder.Bind<LevelCompleteScreenView>().To<LevelCompleteScreenMediator>();
+            mediationBinder.Bind<CourseCompleteScreenView>().To<CourseCompleteScreenMediator>();
 
             /*
             mediationBinder.Bind<LevelListScreenView>().To<LevelListScreenMediator>();

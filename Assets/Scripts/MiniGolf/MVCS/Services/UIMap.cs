@@ -21,7 +21,7 @@ namespace MiniGolf.MVCS.Services
             { Id.ScreenSettings, "UI/SettingsMenu" },
             { Id.InfoMessage, "UI/InfoMessage" },
             { Id.NoTriesMessage, "UI/NoTriesMessage" },
-            { Id.LevelPackDoneMessage, "UI/LevelPackDoneMessage" },
+            { Id.CourseCompleteScreen, "UI/CourseCompleteScreen" },
             { Id.GameCompleteMessage, "UI/GameCompleteMessage" }
         };
 
@@ -41,7 +41,7 @@ namespace MiniGolf.MVCS.Services
             ScreenSettings,
             InfoMessage,
             NoTriesMessage,
-            LevelPackDoneMessage,
+            CourseCompleteScreen,
             GameCompleteMessage
         }
 

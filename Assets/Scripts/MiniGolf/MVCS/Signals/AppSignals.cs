@@ -6,6 +6,10 @@ namespace MiniGolf.MVCS.Signals
     {
     }
 
+    public class StartCourseSignal : Signal
+    {
+    }
+
     public class StartLevelSignal : Signal<int>
     {
     }
